@@ -4,6 +4,7 @@ services:
   myproject:
      image: seigott/burger_war_docker
      container_name: burger_war_docker
+     hostname: ${USER}-docker
      ports:
       - "6081:80"
      shm_size: '512m'
