@@ -46,7 +46,7 @@ COUNTRY=54
 LAYOUT=1
 
 # install expect 
-apt-get update && sudo apt-get install -y \
+apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	expect
 
 # install keyboard-configuration

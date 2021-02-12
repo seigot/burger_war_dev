@@ -7,10 +7,11 @@ RUN /install-key-config.sh
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# ハード情報調査用のコマンドをインストール
-RUN apt-get update -q && sudo apt-get install -y --no-install-recommends \
-    lshw \
-    kmod \
+# 調査用のコマンドをインストール
+RUN apt-get update -q && apt-get install -y --no-install-recommends \
+        lshw \
+        kmod \
+        lsof \
     && rm -rf /var/lib/apt/lists/*
 
 #-------------------------------------------------------------------------------------------------
