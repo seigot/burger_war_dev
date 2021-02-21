@@ -21,6 +21,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan, Image
+from sensor_msgs.msg import Imu
 from cv_bridge import CvBridge, CvBridgeError
 
 from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
@@ -107,6 +108,7 @@ class SeigoBot2:
         self.send_goal(self.waypoint.get_current_waypoint())
         # warstate callback should be called after all parameter is ready!!
         rospy.Timer(rospy.Duration(0.1), self.WarState_timerCallback)
+        self.imu_sub = rospy.Subscriber('imu', Imu, self.imuCallback)
 
     def get_rosparam(self):
         self.my_side = rospy.get_param('~side')
@@ -138,6 +140,9 @@ class SeigoBot2:
         #print("imageCallback+", rospy.Time.now())
         self.detect_from_camera(data)
         #print("imageCallback-", rospy.Time.now())
+
+    def imuCallback(self, data):
+        self.imu = data
 
     def get_position_from_tf(self, c1, c2):
         trans = []
