@@ -91,6 +91,7 @@ class SeigoBot2:
             [18])  # field score state (previous)
         self.enemy_get_target_no = -1
         self.enemy_get_target_no_timestamp = -1
+        self.my_body_remain = 3
         self.enemy_body_remain = 3
 
         self.direct_twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
@@ -276,9 +277,13 @@ class SeigoBot2:
 
         # update body AR marker point
         if self.my_side == "b":
+            self.my_body_remain = np.sum(self.all_field_score[0:3])
             self.enemy_body_remain = np.sum(self.all_field_score[3:6])
         elif self.my_side == "r":
+            self.my_body_remain = np.sum(self.all_field_score[3:6])
             self.enemy_body_remain = np.sum(self.all_field_score[0:3])
+        #print("my_body_remain: ", self.my_body_remain)
+        #print("enemy_body_remain: ", self.enemy_body_remain)
 
         # update which bot is higher score
         if self.my_score <= self.enemy_score:
@@ -295,6 +300,9 @@ class SeigoBot2:
         else:
             # print self.enemy_body_remain, self.all_field_score[0:6]
             self.enemy_info = [distance, direction_diff]
+            if self.my_body_remain == 0 and self.enemy_body_remain == 0:
+                # 敵を検出していたとしても攻撃する必要がなければ巡回
+                return ActMode.BASIC
             if self.enemy_body_remain <= 1 and distance < 1.0 and self.Is_lowwer_score == False:
                 return ActMode.DEFENCE
             if distance < self.snipe_th and self.enable_escape_approach == True and self.Is_lowwer_score == True:
