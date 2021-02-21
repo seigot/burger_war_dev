@@ -82,6 +82,7 @@ class SeigoBot2:
         self.camera_detector = EnemyCameraDetector()
         self.is_camera_detect = False
         self.camera_detect_angle = -360
+        self.is_traphole_detect = False
 
         self.game_timestamp = 0
         self.my_score = 0
@@ -135,6 +136,7 @@ class SeigoBot2:
             '~escape_approach_distance_th_max', default=0.85)
         self.escape_approach_time_interval = rospy.get_param(
             '~escape_approach_time_interval', default=6)
+        self.imu_linear_acceleration_z_th = rospy.get_param('~imu_linear_acceleration_z_th', default=20)
 
     def imageCallback(self, data):
         #print("imageCallback+", rospy.Time.now())
@@ -143,6 +145,17 @@ class SeigoBot2:
 
     def imuCallback(self, data):
         self.imu = data
+
+        # check imu value
+        if self.imu.linear_acceleration.z > self.imu_linear_acceleration_z_th:
+            print("imu_linear_acceleration_z is large value !!", self.imu.linear_acceleration.z)
+            #self.is_traphole_detect = True
+
+        ### -> debug to output data
+        #script_dir = os.path.dirname(os.path.abspath(__file__))
+        #log_file_path = script_dir + "/" + "output.log"
+        #with open(log_file_path, "a") as f:
+        #    f.write(str(self.imu.linear_acceleration.z) + "\n")
 
     def get_position_from_tf(self, c1, c2):
         trans = []
