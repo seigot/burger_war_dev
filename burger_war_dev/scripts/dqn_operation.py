@@ -6,13 +6,18 @@ import sys
 import time
 import subprocess
 import json
+import requests
 
 import rospy
 import rosparam
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Pose, Point, Quaternion, Twist
 from sensor_msgs.msg import Image, LaserScan
 from nav_msgs.msg import Odometry
 from std_msgs.msg import String
+from std_srvs.srv import Empty
+from gazebo_msgs.msg import ModelState
+from gazebo_msgs.srv import SetModelState
+from tf import transformations as tft
 
 import cv2
 import torch
@@ -48,6 +53,8 @@ FIELD_MARKERS = {
     "FriedShrimp_S": [(8, 6), (8, 7), (9, 6), (9, 7)],
 }
 ROBOT_MARKERS = ["BL_B", "BL_L", "BL_R", "RE_B", "RE_L", "RE_R"]
+
+JUDGE_URL = ""
 
 # functions
 def get_rotation_matrix(rad, color='r'):
@@ -95,6 +102,11 @@ class DQNBot:
 
         # rostopic publication
         self.twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
+
+        # rostopic service
+        self.state_service = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+        self.pause_service = rospy.ServiceProxy('/gazebo/pause_physics', Empty)
+        self.unpause_service = rospy.ServiceProxy('/gazebo/unpause_physics', Empty)
     
     def callback_lidar(self, data):
         """
@@ -221,11 +233,32 @@ class DQNBot:
         twist.angular.z = ACTION_LIST[action][1]
         self.twist_pub.publish(twist)
 
+    def move_robot(self, model_name, position=None, orientation=None):
+        state = ModelState()
+        state.model_name = model_name
+        pose = Pose()
+        if position is not None:
+            pose.position = Point(*position)
+        if orientation is not None:
+            tmpq = tft.quaternion_from_euler(*orientation)
+            pose.orientation = Quaternion(tmpq[0], tmpq[1], tmpq[2], tmpq[3])
+        state.pose = pose
+        try:
+            self.state_service(state)
+        except rospy.ServiceException, e:
+            print("Service call failed: %s".format(e))
 
     def stop(self):
+        self.pause_service()
 
 
     def restart(self):
+        self.unpause_service()
+
+    def reset(self):
+        resp = requests.get(JUDGE_URL + "/reset")
+        self.move_robot("red_bot", (0.0, -1.3, 0.0), (0, 0.0, 0))
+        self.move_robot("blue_bot", (0.0, 1.3, 0.0), (0, 0.0, 0))
 
     
     def run(self, rospy_rate=1):
@@ -241,6 +274,8 @@ class DQNBot:
 
     
 if __name__ == "__main__":
+    rospy.init_node('dqn_run')
+    JUDGE_URL = rospy.get_param('/send_id_to_judge/judge_url')
 
     try:
         bot = DQNBot()
