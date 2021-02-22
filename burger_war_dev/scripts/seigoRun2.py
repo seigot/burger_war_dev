@@ -259,6 +259,16 @@ class SeigoBot2:
         self.getWarState()
 
     def getWarState(self):
+        def get_state_txt(state):
+            if state == 1:
+                return "-"
+            elif state == 2:
+                return "enemy"
+            elif state == 0:
+                return "you"
+            else:
+                return "unknown"
+
         # get current state from judge server
         resp = requests.get(JUDGE_URL + "/warState")
         dic = resp.json()
@@ -286,9 +296,14 @@ class SeigoBot2:
             # check if field score is updated.
             if self.all_field_score[idx] != self.all_field_score_prev[idx]:
                 if self.all_field_score[idx] == 2:
-                    print("enemy get target No.", idx, self.game_timestamp)
                     self.enemy_get_target_no = idx
                     self.enemy_get_target_no_timestamp = self.game_timestamp
+
+                self.mlog("point_changed",
+                          str(idx) + "," \
+                          + dic["targets"][idx]["point"] + "," \
+                          + get_state_txt(self.all_field_score_prev[idx]) + "," \
+                          + get_state_txt(self.all_field_score[idx]))
         # update field score state to check enemy get target
 
         self.waypoint.set_field_score(self.all_field_score[6:])
@@ -332,18 +347,6 @@ class SeigoBot2:
             return ActMode.BASIC
 
     def status_transition(self):
-        def get_mode_txt(n):
-            if n == ActMode.BASIC:
-                return 'basic'
-            elif n == ActMode.ATTACK:
-                return 'attack'
-            elif n == ActMode.ESCAPE:
-                return 'escape'
-            elif n == ActMode.DEFENCE:
-                return 'defence'
-            else:
-                return 'unknown'
-
         pre_act_mode = self.act_mode
         self.act_mode = self.mode_decision()
         if self.act_mode == ActMode.BASIC:
@@ -360,8 +363,7 @@ class SeigoBot2:
             rospy.logwarn('unknown actmode !!!')
 
         if pre_act_mode != self.act_mode:
-            text = 'change to ' + get_mode_txt(self.act_mode)
-            rospy.loginfo(text)
+            self.mlog("act_mode_changed", str(pre_act_mode))
 
     def basic(self):
         # vaild, vx = self.recovery()  # ぶつかってないか確認
@@ -375,6 +377,7 @@ class SeigoBot2:
         pre_status = self.status
         self.status = self.move_base_client.get_state()
         if pre_status != self.status:
+            self.mlog("move_base_changed", str(pre_status) + "," + str(self.status))
             rospy.loginfo(self.move_base_client.get_goal_status_text())
 
         if self.status == actionlib.GoalStatus.ACTIVE:
@@ -413,7 +416,8 @@ class SeigoBot2:
         self.move_base_client.send_goal(goal)
         rospy.sleep(0.5)
 
-        rospy.loginfo('send goal')
+        self.mlog("send_goal",
+                  str(point[0]) + "," + str(point[1]) + "," + str(point[2]))
 
     def cancel_goal(self):
         self.move_base_client.cancel_all_goals()
@@ -494,6 +498,14 @@ class SeigoBot2:
             return True, 0.05
         else:
             return False, 0.0
+
+    def mlog(self, event, msg):
+        rospy.loginfo(str(self.game_timestamp) + "," \
+                      + str(self.my_score) + "," \
+                      + str(self.enemy_score) + "," \
+                      + str(self.act_mode) + "," \
+                      + event + "," + msg,
+                      logger_name="machine")
 
 
 def main():
