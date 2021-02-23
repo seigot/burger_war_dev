@@ -12,6 +12,7 @@
   <arg name="initial_pose_y" default="0.0"/>
   <arg name="initial_pose_a" default="0.0"/>
   <arg name="robot_namespace" default=""/>
+  <arg name="rviz_file" default="burger_navigation.rviz"/>
 
   <!-- Map server -->
   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)">
@@ -86,7 +87,7 @@
 
   <!-- rviz -->
   <group if="$(arg open_rviz)"> 
-    <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find burger_navigation)/rviz/burger_navigation.rviz">
+    <node pkg="rviz" type="rviz" name="rviz" required="true" args="-d $(find burger_navigation)/rviz/$(arg rviz_file)">
       <remap from="/move_base_simple/goal" to="move_base_simple/goal"/>
     </node>
   </group>

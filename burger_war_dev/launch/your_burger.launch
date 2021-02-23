@@ -2,12 +2,14 @@
 <launch>
   <arg name="side" default="r"/> <!-- "b" = blue side, "r" = red side  -->
   <arg name="robot_namespace" default=""/>
+  <arg name="rviz_file" default="burger_navigation.rviz"/>
     <!-- You can change control program  -->
 
   <!-- sample program node -->
 
     <include file="$(find burger_navigation)/launch/burger_navigation.launch">
       <arg name="robot_namespace" default="$(arg robot_namespace)"/>
+      <arg name="rviz_file" value="$(arg rviz_file)"/>
 
       <!--  カクついたらここをコメント解除　-->
       <!-- <arg name="cmd_vel_topic" value="/move_base/cmd_vel"/> -->
