@@ -20,6 +20,7 @@ import angles
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Pose, Point, Quaternion, PoseWithCovarianceStamped
 from sensor_msgs.msg import LaserScan, Image
 from sensor_msgs.msg import Imu
 from cv_bridge import CvBridge, CvBridgeError
@@ -44,6 +45,17 @@ class ActMode(Enum):
 #      10           12
 #            17
 #      11  [zone1]  13
+#
+#
+#  coordinate systemn
+#            ^ X  blue bot
+#            |
+#            |
+#     Y <----|-----
+#            |
+#            |
+#            |    red bot
+#
 # ----------------------------------------
 #        Back 0                  Back 3
 #   R 2[enemy_bot(b)]L 1   R 5[my_bot(r)]L 4
@@ -96,6 +108,10 @@ class SeigoBot2:
         self.enemy_get_target_no_timestamp = -1
         self.my_body_remain = 3
         self.enemy_body_remain = 3
+        # self position estimation value
+        self.my_pose_x = 1000              # init value
+        self.my_pose_y = 1000              # init value
+        self.my_direction_th = math.pi*100 # init value
 
         self.direct_twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 
@@ -111,6 +127,7 @@ class SeigoBot2:
         # warstate callback should be called after all parameter is ready!!
         rospy.Timer(rospy.Duration(0.1), self.WarState_timerCallback)
         self.imu_sub = rospy.Subscriber('imu', Imu, self.imuCallback)
+        self.amcl_sub = rospy.Subscriber("amcl_pose", PoseWithCovarianceStamped, self.amclposeCallback)
 
     def get_rosparam(self):
         self.my_side = rospy.get_param('~side')
@@ -157,6 +174,18 @@ class SeigoBot2:
         #log_file_path = script_dir + "/" + "output.log"
         #with open(log_file_path, "a") as f:
         #    f.write(str(self.imu.linear_acceleration.z) + "\n")
+
+    def amclposeCallback(self, data):
+        """
+        callback function of amcl_pose subscription
+        called each 0.5 seconds
+        """
+        self.my_pose_x = data.pose.pose.position.x
+        self.my_pose_y = data.pose.pose.position.y
+        quaternion = data.pose.pose.orientation
+        rpy = tf.transformations.euler_from_quaternion((quaternion.x, quaternion.y, quaternion.z, quaternion.w))
+        self.my_direction_th = rpy[2]
+        #print("amclposeCallback update !!", self.my_pose_x, self.my_pose_y, self.my_direction_th)
 
     def get_position_from_tf(self, c1, c2):
         trans = []
