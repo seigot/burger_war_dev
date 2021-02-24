@@ -431,6 +431,8 @@ class SeigoBot2:
                 #    # wait until PREEMPTED state
                 #    rospy.sleep(0.1)
                 self.move_base_client.wait_for_result(rospy.Duration(10))
+                # [fix] ここでcurrentwaypointを指定しないと次のgoalがskipされるため以下send_goal処理を実施
+                #       move baseにqueueされている命令を何かしら破棄する必要があるかもしれない
                 self.send_goal(self.waypoint.get_current_waypoint())
 
         elif self.status == actionlib.GoalStatus.PREEMPTED:
