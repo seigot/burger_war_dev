@@ -85,6 +85,7 @@ class SeigoBot2:
         self.is_traphole_detect = False
 
         self.game_timestamp = 0
+        self.last_game_timestamp = 0
         self.my_score = 0
         self.enemy_score = 0
         self.Is_lowwer_score = False
@@ -281,6 +282,8 @@ class SeigoBot2:
             self.enemy_score = int(dic["scores"]["r"])
 
         self.game_timestamp = int(dic["time"])
+        if dic["state"] == "running":
+            self.last_game_timestamp = self.game_timestamp
 
         # get warstate score state and compare previous value
         for idx in range(18):  # number of field targets, how to get the number?
@@ -500,7 +503,7 @@ class SeigoBot2:
             return False, 0.0
 
     def mlog(self, event, msg):
-        rospy.loginfo(str(self.game_timestamp) + "," \
+        rospy.loginfo(str(self.last_game_timestamp) + "," \
                       + str(self.my_score) + "," \
                       + str(self.enemy_score) + "," \
                       + str(self.act_mode) + "," \
