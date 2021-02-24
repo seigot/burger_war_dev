@@ -78,6 +78,10 @@ class Waypoints:
     def get_current_waypoint(self):
         return self.points[self.number]
 
+    def get_current_target_number(self):
+        # target No.
+        return self.points[self.number][3]
+
     def get_any_waypoint(self, n):
         return self.points[n]
 

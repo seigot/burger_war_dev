@@ -70,6 +70,7 @@ class SeigoBot2:
         def load_waypoint():
             path = os.environ['HOME'] + \
                 '/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints.csv'
+                #'/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints_20210222.csv'
             return Waypoints(path, self.my_side)
 
         self.listener = tf.TransformListener()
@@ -106,6 +107,8 @@ class SeigoBot2:
             [18])  # field score state (previous)
         self.enemy_get_target_no = -1
         self.enemy_get_target_no_timestamp = -1
+        self.my_get_target_no = -1
+        self.my_get_target_no_timestamp = -1
         self.my_body_remain = 3
         self.enemy_body_remain = 3
         # self position estimation value
@@ -331,6 +334,10 @@ class SeigoBot2:
                     self.enemy_get_target_no = idx
                     self.enemy_get_target_no_timestamp = self.game_timestamp
 
+                if self.all_field_score[idx] == 0:
+                    self.my_get_target_no = idx
+                    self.my_get_target_no_timestamp = self.game_timestamp
+
                 self.mlog("point_changed",
                           str(idx) + "," \
                           + dic["targets"][idx]["point"] + "," \
@@ -413,8 +420,25 @@ class SeigoBot2:
             rospy.loginfo(self.move_base_client.get_goal_status_text())
 
         if self.status == actionlib.GoalStatus.ACTIVE:
-            pass
+            # while heading to current target
+            # goalまでにtargetを取得したら次の的を取りに行く
+            current_target_number = self.waypoint.get_current_target_number()
+            if current_target_number == self.my_get_target_no :
+                print("get current_target, go next : ", current_target_number)
+                self.cancel_goal()
+                #while self.move_base_client.get_state() == actionlib.GoalStatus.ACTIVE:
+                #    #print(self.move_base_client.get_state())
+                #    # wait until PREEMPTED state
+                #    rospy.sleep(0.1)
+                self.move_base_client.wait_for_result(rospy.Duration(10))
+                self.send_goal(self.waypoint.get_current_waypoint())
+
+        elif self.status == actionlib.GoalStatus.PREEMPTED:
+            print("go next goal (PREEMPTED)")
+            point = self.waypoint.get_next_waypoint()
+            self.send_goal(point)
         elif self.status == actionlib.GoalStatus.SUCCEEDED:
+            print("go next goal (SUCCEEDED)")
             # 早すぎてマーカー取れなかったらここでsleep
             rospy.sleep(0.3)
             point = self.waypoint.get_next_waypoint()
@@ -452,6 +476,8 @@ class SeigoBot2:
                   str(point[0]) + "," + str(point[1]) + "," + str(point[2]))
 
     def cancel_goal(self):
+        #self.move_base_client.stop_tracking_goal()
+        #self.move_base_client.cancel_goal()
         self.move_base_client.cancel_all_goals()
         return
 
