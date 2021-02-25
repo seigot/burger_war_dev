@@ -423,22 +423,23 @@ class SeigoBot2:
             # while heading to current target
             # goalまでにtargetを取得したら次の的を取りに行く
             current_target_number = self.waypoint.get_current_target_number()
-            if current_target_number == self.my_get_target_no :
-                print("get current_target, go next : ", current_target_number)
-                self.cancel_goal()
-                #while self.move_base_client.get_state() == actionlib.GoalStatus.ACTIVE:
-                #    #print(self.move_base_client.get_state())
-                #    # wait until PREEMPTED state
-                #    rospy.sleep(0.1)
-                self.move_base_client.wait_for_result(rospy.Duration(10))
-                # [fix] ここでcurrentwaypointを指定しないと次のgoalがskipされるため以下send_goal処理を実施
-                #       move baseにqueueされている命令を何かしら破棄する必要があるかもしれない
-                self.send_goal(self.waypoint.get_current_waypoint())
+            #if current_target_number == self.my_get_target_no :
+            #    print("get current_target, go next : ", current_target_number)
+            #    self.cancel_goal()
+            #    #while self.move_base_client.get_state() == actionlib.GoalStatus.ACTIVE:
+            #    #    #print(self.move_base_client.get_state())
+            #    #    # wait until PREEMPTED state
+            #    #    rospy.sleep(0.1)
+            #    self.move_base_client.wait_for_result(rospy.Duration(10))
+            #    # [fix] ここでcurrentwaypointを指定しないと次のgoalがskipされるため以下send_goal処理を実施
+            #    #       move baseにqueueされている命令を何かしら破棄する必要があるかもしれない
+            #    #self.send_goal(self.waypoint.get_current_waypoint())
+            #    #self.status = actionlib.GoalStatus.SUCCEEDED:
 
-        elif self.status == actionlib.GoalStatus.PREEMPTED:
-            print("go next goal (PREEMPTED)")
-            point = self.waypoint.get_next_waypoint()
-            self.send_goal(point)
+        #elif self.status == actionlib.GoalStatus.PREEMPTED:
+        #    print("go next goal (PREEMPTED)")
+        #    point = self.waypoint.get_next_waypoint()
+        #    self.send_goal(point)
         elif self.status == actionlib.GoalStatus.SUCCEEDED:
             print("go next goal (SUCCEEDED)")
             # 早すぎてマーカー取れなかったらここでsleep
