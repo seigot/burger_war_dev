@@ -70,6 +70,7 @@ class SeigoBot2:
         def load_waypoint():
             path = os.environ['HOME'] + \
                 '/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints.csv'
+                #'/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints_20210222_preliminary.csv'
                 #'/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints_20210222.csv'
             return Waypoints(path, self.my_side)
 
@@ -423,25 +424,14 @@ class SeigoBot2:
             # while heading to current target
             # goalまでにtargetを取得したら次の的を取りに行く
             current_target_number = self.waypoint.get_current_target_number()
-            #if current_target_number == self.my_get_target_no :
-            #    print("get current_target, go next : ", current_target_number)
-            #    self.cancel_goal()
-            #    #while self.move_base_client.get_state() == actionlib.GoalStatus.ACTIVE:
-            #    #    #print(self.move_base_client.get_state())
-            #    #    # wait until PREEMPTED state
-            #    #    rospy.sleep(0.1)
-            #    self.move_base_client.wait_for_result(rospy.Duration(10))
-            #    # [fix] ここでcurrentwaypointを指定しないと次のgoalがskipされるため以下send_goal処理を実施
-            #    #       move baseにqueueされている命令を何かしら破棄する必要があるかもしれない
-            #    #self.send_goal(self.waypoint.get_current_waypoint())
-            #    #self.status = actionlib.GoalStatus.SUCCEEDED:
+            if current_target_number == self.my_get_target_no :
+                print("get current_target, go next : ", current_target_number)
+                self.cancel_goal()
+                self.move_base_client.wait_for_result(rospy.Duration(10))
 
-        #elif self.status == actionlib.GoalStatus.PREEMPTED:
-        #    print("go next goal (PREEMPTED)")
-        #    point = self.waypoint.get_next_waypoint()
-        #    self.send_goal(point)
         elif self.status == actionlib.GoalStatus.SUCCEEDED:
-            print("go next goal (SUCCEEDED)")
+            # goal到着 or cancel時の処理
+            print("go next goal (GoalStatus.SUCCEEDED)")
             # 早すぎてマーカー取れなかったらここでsleep
             rospy.sleep(0.3)
             point = self.waypoint.get_next_waypoint()
