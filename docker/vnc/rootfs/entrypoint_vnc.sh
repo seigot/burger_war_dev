@@ -3,9 +3,12 @@
 DEVELOPER_NAME=developer
 DEV_HOME=/home/${DEVELOPER_NAME}
 
+# ユーザーの指定
+sed -i -e "s|{{USER}}|${DEVELOPER_NAME}|" -e "s|{{HOME}}|${DEV_HOME}|" /etc/supervisor/conf.d/supervisord.conf
+
 # x11vncへの追加引数
 if [ -n "$X11VNC_ARGS" ]; then
-    sed -i "s/^command=gosu {{USER}} x11vnc.*/& ${X11VNC_ARGS}/" /etc/supervisor/conf.d/supervisord.conf
+    sed -i "s/^command=x11vnc.*/& ${X11VNC_ARGS}/" /etc/supervisor/conf.d/supervisord.conf
 fi
 
 # VNCパスワード設定
@@ -14,7 +17,7 @@ if [ -n "$PASSWORD" ]; then
     echo -n "$PASSWORD" > ${DEV_HOME}/.x11vnc/password1
     x11vnc -storepasswd $(cat ${DEV_HOME}/.x11vnc/password1) ${DEV_HOME}/.x11vnc/password2
     chmod 400 ${DEV_HOME}/.x11vnc/password*
-    sed -i "s!command=gosu {{USER}} x11vnc.*!& -rfbauth ${DEV_HOME}/.x11vnc/password2!" /etc/supervisor/conf.d/supervisord.conf
+    sed -i "s!command=x11vnc.*!& -rfbauth ${DEV_HOME}/.x11vnc/password2!" /etc/supervisor/conf.d/supervisord.conf
     export PASSWORD=
 fi
 
@@ -27,8 +30,6 @@ fi
 if [ -n "$OPENBOX_ARGS" ]; then
     sed -i "s#^command=/usr/bin/openbox\$#& ${OPENBOX_ARGS}#" /etc/supervisor/conf.d/supervisord.conf
 fi
-
-sed -i -e "s|{{USER}}|${DEVELOPER_NAME}|" -e "s|{{HOME}}|${DEV_HOME}|" /etc/supervisor/conf.d/supervisord.conf
 
 # home folder
 if [ ! -x "${DEV_HOME}/.config/pcmanfm/LXDE/" ]; then

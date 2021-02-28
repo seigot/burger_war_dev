@@ -81,7 +81,9 @@ RUN echo "NO_AT_BRIDGE=1" >> /home/developer/.bashrc
 
 # 必要なファイルのコピー
 COPY vnc/rootfs /
-RUN chown developer -R /home/developer
+RUN chown developer:developer -R /home/developer
+RUN chown developer:developer /entrypoint_vnc.sh \
+    && chmod +x /entrypoint_vnc.sh
 
 ENTRYPOINT ["/entrypoint_vnc.sh"]
 

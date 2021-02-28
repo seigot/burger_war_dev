@@ -3,12 +3,13 @@
 #-burger-war-core/burger-war-devのDockerfileをビルドする
 #-
 #+[USAGE]
-#+  $0 [-a BUILDオプション(core/dev)] [-c BUILDオプション(core)] [-d BUILDオプション(dev)] [-t BUILDターゲット][-v イメージのバージョン] [-h]
+#+  $0 [-a BUILDオプション(core/dev)] [-c BUILDオプション(core)] [-d BUILDオプション(dev)] [-k kitイメージのバージョン] [-t BUILDターゲット][-v 作成イメージのバージョン] [-h]
 #+
 #-[OPTIONS]
 #-  -a options    burger-war-core/burger-war-devの'docker build'に追加で渡す引数を指定（複数回指定可能）
 #-  -c options    burger-war-coreの'docker build'に追加で渡す引数を指定（複数回指定可能）
 #-  -d options    burger-war-devの'docker build'に追加で渡す引数を指定（複数回指定可能）
+#-  -k version    利用するburger-war-kitのバージョンを指定
 #-  -t target     ビルドするターゲットの指定(dev|robo|sim|vnc) *coreは常にビルドされる
 #-  -v version    'docker build -t'で指定するイメージのバージョンを指定 (default: latest)
 #-  -h            このヘルプを表示
@@ -54,6 +55,7 @@ PROXY_OPTION=
 [ -n "${HOST_http_proxy}"  ] && PROXY_OPTION="${PROXY_OPTION} --build-arg http_proxy=${HOST_http_proxy}"
 [ -n "${HOST_https_proxy}" ] && PROXY_OPTION="${PROXY_OPTION} --build-arg https_proxy=${HOST_https_proxy}"
 [ -n "${HOST_ftp_proxy}"   ] && PROXY_OPTION="${PROXY_OPTION} --build-arg ftp_proxy=${HOST_ftp_proxy}"
+[ -n "${PROXY_OPTION}" ] && PROXY_OPTION="${PROXY_OPTION} --build-arg no_proxy=127.0.0.1,localhost,${HOSTNAME} --build-arg NO_PROXY=127.0.0.1,localhost,${HOSTNAME}"
 
 # オプション・引数解析
 #------------------------------------------------
@@ -62,7 +64,7 @@ CORE_BUILD_OPTION=
 IMAGE_VERSION=latest
 BUILD_TARGET=dev
 BUILD_DOCKER_IMAGE_NAME=${DOCKER_IMAGE_PREFIX}-${BUILD_TARGET}
-while getopts a:c:d:t:v:h OPT
+while getopts a:c:d:k:t:v:h OPT
 do
   case $OPT in
     a  ) # burger-war-core/burger-war-devのdocker buildへの追加オプション引数指定
@@ -74,6 +76,9 @@ do
       ;;
     d  ) # burger-war-devのdocker buildへの追加オプション引数指定
       DEV_BUILD_OPTION="${DEV_BUILD_OPTION} ${OPTARG}"
+      ;;
+    k  ) # kitのイメージバージョンを指定してビルド
+      KIT_VERSION="${OPTARG}"
       ;;
     t  ) # ビルドするターゲットを指定
       BUILD_TARGET="${OPTARG}"
