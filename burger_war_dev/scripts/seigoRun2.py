@@ -38,14 +38,13 @@ class ActMode(Enum):
 # the number means index of warstate json file.
 # the target state is stored in all_field_score param (0:no one,1:mybot,2:enemy)
 #
-#      6   [zone3]  8
-#            14
-#      7            9
-# [zone2] 16    15 [zone4]
-#      10           12
-#            17
-#      11  [zone1]  13
-#
+#      6                   8
+#   [BLOCK]     14      [BLOCK]
+#      7                   9
+#          16 [BLOCK] 15
+#      10                  12
+#   [BLOCK]     17      [BLOCK]
+#      11                  13
 #
 #  coordinate systemn
 #            ^ X  blue bot
