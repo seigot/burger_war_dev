@@ -433,8 +433,11 @@ class SeigoBot2:
         elif self.status == actionlib.GoalStatus.SUCCEEDED:
             # goal到着 or cancel時の処理
             print("go next goal (GoalStatus.SUCCEEDED)")
-            # 早すぎてマーカー取れなかったらここでsleep
-            rospy.sleep(0.3)
+
+            current_target_number = self.waypoint.get_current_target_number()
+            if self.waypoint.check_if_get_field_score(current_target_number) != True:
+                # 早すぎてマーカー取れなかったらここでsleep
+                rospy.sleep(0.3)
             point = self.waypoint.get_next_waypoint()
             self.send_goal(point)
         elif self.status == actionlib.GoalStatus.ABORTED:

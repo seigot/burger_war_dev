@@ -5,6 +5,7 @@ import csv
 import math
 import numpy as np
 
+FIELD_SCORE_NUM_OFFSET=6
 
 class Waypoints:
 
@@ -49,7 +50,8 @@ class Waypoints:
                     # 得点と関係ないwaypoint
                     continue
 
-                if self.all_field_score[score_num-6] == 0:
+                if self.all_field_score[score_num - FIELD_SCORE_NUM_OFFSET] == 0:
+                    # already get score, skip search
                     continue
                 else:
                     print i
@@ -91,6 +93,13 @@ class Waypoints:
     def set_field_score(self, n):
         self.all_field_score = n
         # print(self.all_field_score)
+
+    def check_if_get_field_score(self, n):
+        score_num = n
+        if self.all_field_score[score_num - FIELD_SCORE_NUM_OFFSET] == 0:
+            return True
+        else:
+            return False
 
 
 # if __name__ == "__main__":
