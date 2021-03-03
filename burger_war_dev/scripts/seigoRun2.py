@@ -68,10 +68,10 @@ class SeigoBot2:
 
         def load_waypoint():
             path = os.environ['HOME'] + \
-                '/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints_20210222_preliminary.csv'
+                '/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints_20210222.csv'
                 #'/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints.csv'
+                # '/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints_20210222_preliminary.csv'
 
-                #'/catkin_ws/src/burger_war_dev/burger_war_dev/scripts/waypoints_20210222.csv'
             return Waypoints(path, self.my_side)
 
         self.listener = tf.TransformListener()
