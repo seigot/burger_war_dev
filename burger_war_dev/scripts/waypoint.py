@@ -39,43 +39,30 @@ class Waypoints:
             print("next lap!!!!!!")
             self.number = 0
 
-        if self.Waypoints_Lap == 0:
-            return self.points[self.number][0:3]
-        elif self.Waypoints_Lap > 0:
-            print("search target !!!!!!", self.all_field_score)
-            for i in range(self.number, len(self.points))+range(self.number):
-                score_num = self.points[i][3]
-                print score_num
-                if score_num == -1:
-                    # 得点と関係ないwaypoint
-                    continue
+        print("search target !!!!!!", self.all_field_score)
+        for i in range(self.number, len(self.points))+range(self.number):
+            score_num = self.points[i][3]
+            print score_num
 
-                if self.all_field_score[score_num - FIELD_SCORE_NUM_OFFSET] == 0:
-                    # already get score, skip search
-                    continue
-                else:
-                    print i
-                    self.number = i
-                    return self.points[i][0:3]
+            # 得点と関係ないwaypoint
+            if score_num == -1:
+                # 1週目は得点と関係ないwaypointも辿る。
+                if self.Waypoints_Lap == 0:
+                    return self.points[self.number][0:3]
+                continue
 
-            print("got all field score !!!")
-            return self.points[self.number][0:3]
+            # 得点と関係あるwaypoint
+            if self.all_field_score[score_num - FIELD_SCORE_NUM_OFFSET] == 0:
+                # if already get score, skip search
+                continue
+            else:
+                # if not get score, go to target
+                print i
+                self.number = i
+                return self.points[i][0:3]
+
+        print("got all field score !!!")
         return self.points[self.number][0:3]
-
-        # disable
-        # check if better target to get score.
-        #self.better_number = self.number
-        # for i in range(len(self.points)):
-        #    # check next target status
-        #    self.next_target_idx = self.points[self.better_number][3]
-        #    if self.all_field_score[self.next_target_idx] != 0:
-        #        print("better target to get score", self.number)
-        #        self.number = self.better_number
-        #        break
-        #
-        #    self.better_number = self.better_number+1
-        #    if self.better_number == len(self.points):
-        #        self.better_number = 0
 
     def get_current_waypoint(self):
         return self.points[self.number]
