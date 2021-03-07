@@ -68,6 +68,23 @@ RUN apt-get update ;\
     apt install -y ros-melodic-aruco-ros; \
     apt install -y python-pil python-pil.imagetk;
 
+
+# For enemy
+RUN apt-get update ;\
+    apt install -y \
+    libsuitesparse-dev \
+    ros-melodic-costmap-converter \
+    ros-melodic-libg2o \
+    ros-melodic-mbf-costmap-core \
+    ros-melodic-mbf-msgs
+
+# log upload
+RUN apt-get update ;\
+    apt-get install -y \
+    python-pandas \
+    wmctrl \
+    xdotool
+
 # ai lib
 #ADD  install_ai_lib.sh  /
 #RUN  chmod +x /install_ai_lib.sh
