@@ -46,12 +46,10 @@ class Waypoints:
 
             # 得点と関係ないwaypoint
             if score_num == -1:
-                ## 1週目は得点と関係ないwaypointも辿る。
-                #if self.Waypoints_Lap == 0:
-                #    return self.points[self.number][0:3]
-                #continue
-                # 常に得点と関係ないwaypointは必ず辿る（常に外周を走行するため）
-                return self.points[self.number][0:3]
+                # 1週目は得点と関係ないwaypointも辿る。
+                if self.Waypoints_Lap == 0:
+                    return self.points[self.number][0:3]
+                continue
 
             # 得点と関係あるwaypoint
             if self.all_field_score[score_num - FIELD_SCORE_NUM_OFFSET] == 0:
