@@ -148,7 +148,7 @@ jobs:
 
       # ghcr.ioにログイン
       - name: Login to ghrc.io
-        if: steps.image-test.outputs.test_result == 0 && github.event.inputs.release_enable == 'yes'
+        if: steps.image-test.outputs.test_result == 0 && github.event.inputs.release_enable == 'yes' && ${{ secrets.GHCR_USERNAME }} != null
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
@@ -157,7 +157,7 @@ jobs:
 
       # burger-warイメージをghcr.ioにプッシュ
       - name: Push Docker Image
-        if: steps.image-test.outputs.test_result == 0 && github.event.inputs.release_enable == 'yes'
+        if: steps.image-test.outputs.test_result == 0 && github.event.inputs.release_enable == 'yes' && ${{ secrets.GHCR_USERNAME }} != null
         run: |
           # burger-war-coreのプッシュ
           docker tag ${{ env.IMAGE_NAME_CORE }} ${{ env.RESISTRY_URL }}/${{ env.IMAGE_NAME_CORE }}
