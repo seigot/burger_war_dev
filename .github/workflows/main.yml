@@ -19,13 +19,13 @@ jobs:
         with:
           required-ros-distributions: melodic
       - name: burger_navigation
-        uses: ros-tooling/action-ros-ci@v0.1
+        uses: ros-tooling/action-ros-ci@v0.2
         with:
           package-name: burger_navigation
           target-ros1-distro: melodic
           vcs-repo-file-url: ""
       - name: following_planner
-        uses: ros-tooling/action-ros-ci@v0.1
+        uses: ros-tooling/action-ros-ci@v0.2
         with:
           package-name: following_planner
           target-ros1-distro: melodic
