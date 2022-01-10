@@ -15,7 +15,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
       - name: ros setup
-        uses: ros-tooling/setup-ros@v0.1
+        uses: ros-tooling/setup-ros@v0.2
         with:
           required-ros-distributions: melodic
       - name: burger_navigation
